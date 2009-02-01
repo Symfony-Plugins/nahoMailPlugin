@@ -14,15 +14,12 @@
     of sending emails in Symfony 1.1 and further.
   </summary>
   <description>
-    As of Symfony 1.2, sending emails has become more verbose and less
-    structured. `nahoMail` provides : * Inclusion of Swift Mailer (as
-    adviced in mail documentation) directly in the plugin as an
-    external. * A centralized configuration : you won't have to redefine
-    your SMTP access and call all those nested Swift classes. It's all
-    done in your app.yml once. * A `nahoMail` class with a simple "send"
-    method which allows you to send an e-mail with (almost) one call. *
-    A shortcut to ease the construction of your mail body using partials
-    or components. * Abstraction of image-embedding.
+    The `nahoMailPlugin` is a symfony plugin that provides an easy way
+    of sending emails using the Swift Library and further.
+    
+    Providing shortcuts for all the complex operations provided by Swift,
+    keeping the user (you) from calling all those complex nested calls
+    to its verbose classes, but not losing its powerness.
   </description>
   <lead>
     <name>Nicolas Chambrier</name>
