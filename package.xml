@@ -30,7 +30,7 @@
   <date>2009-02-02</date>
   <time>20:19:00</time>
   <version>
-    <release>1.0.1</release>
+    <release>1.0.2</release>
     <api>1.0.0</api>
   </version>
   <stability>
@@ -174,6 +174,24 @@
   </dependencies>
   <phprelease />
   <changelog>
+    <release>
+      <version>
+        <release>1.0.2</release>
+        <api>1.0.0</api>
+      </version>
+      <stability>
+        <release>stable</release>
+        <api>stable</api>
+      </stability>
+      <date>2009-01-31</date>
+      <license
+        uri="http://www.opensource.org/licenses/mit-license.html">
+        MIT
+      </license>
+      <notes>* naholyr: fixed an error when sending e-mail with just a string body as second parameter
+* naholyr: fixed the way helpers are loaded for versions lower than 1.2
+* naholyr: proper disconnection when exception catched when sending mail</notes>
+    </release>
     <release>
       <version>
         <release>1.0.1</release>

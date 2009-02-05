@@ -151,6 +151,7 @@ class nahoMail
    * You can use "%%IMG_name-of-image%%" in the body or in any part to reference the corresponding embedded image.
    *  
    * @param array $options
+   * @throws Exception
    * @return int The number of successful recipients
    */
   protected static function _send(array $options)
@@ -177,6 +178,9 @@ class nahoMail
     }
     
     // Get body as the main part
+    if (!is_array($options['body'])) {
+      $options['body'] = array('content' => $options['body']);
+    }
     $body = self::getPart($options['body'], $embedded_images);
     
     // Attach parts (body is the first one)
@@ -216,10 +220,22 @@ class nahoMail
       $mail->setReturnPath($options['return-path']);
     }
     
-    $result = $mailer->send($mail, $to, $from);
-    $mailer->disconnect();
-    
-    return $result;
+    try {
+      
+      // Try to send the mail
+      $result = $mailer->send($mail, $to, $from);
+      $mailer->disconnect();
+      
+      return $result;
+      
+    } catch (Exception $e) {
+      
+      // An error occured, disconnect an eventual connection, and forwards the exception
+      $mailer->disconnect();
+      
+      throw $e;
+      
+    }
   }
   
   /**
@@ -254,7 +270,7 @@ class nahoMail
    */
   protected static function embedImages(Swift_Message $mail, array $images)
   {
-    sfApplicationConfiguration::getActive()->loadHelpers(array('Asset'));
+    self::loadHelper('Asset');
     
     $cids = array();
     
@@ -283,7 +299,7 @@ class nahoMail
   protected static function getContent($content, array $embedded_images = array())
   {
     if (is_array($content)) {
-      sfApplicationConfiguration::getActive()->loadHelpers(array('Partial'));
+      self::loadHelper('Partial');
       
       if ($content['type'] == 'partial') {
         $string = get_partial($content['name'], $content['vars']);
@@ -509,6 +525,16 @@ class nahoMail
     }
     
     return $connection;
+  }
+  
+  /**
+   * Load a helper (uses a wrapper for eventual later change in Symfony's API)
+   *
+   * @param string $helper
+   */
+  protected static function loadHelper($helper)
+  {
+    sfLoader::loadHelpers(array($helper));
   }
   
 }
