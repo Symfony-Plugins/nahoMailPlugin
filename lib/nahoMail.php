@@ -156,35 +156,56 @@ class nahoMail
    */
   protected static function _send(array $options)
   {
-    $options = array_merge(sfConfig::get('app_mailer_defaults'), $options);
+    $options = array_merge(sfConfig::get('app_mailer_defaults', array()), $options);
     
     // Mailer
+    if (!isset($options['connection'])) {
+      throw new Exception('Connection configuration required');
+    }
+    if (!isset($options['connection']['type'])) {
+      throw new Exception('Connection type undefined');
+    }
+    if (!isset($options['connection']['params'])) {
+      $options['connection']['params'] = array();
+    }
     $connection = self::getConnection($options['connection']['type'], $options['connection']['params']);
     $mailer = new Swift($connection);
     
     // Basic elements
     $from = $options['from'];
     $to = $options['to'];
+    if (!isset($options['subject'])) {
+      throw new Exception('Subject required');
+    }
+    if (!isset($options['subject-template'])) {
+      $options['subject-template'] = '%s';
+    }
+    if (!isset($options['i18n-catalogue'])) {
+      $options['i18n-catalogue'] = 'messages';
+    }
     $subject = self::getI18NString($options['subject'], $options['subject-template'], $options['i18n-catalogue']);
     
     // Message to be sent
     $mail = new Swift_Message($subject);
     
     // Embedded images
-    if (@$options['embed-images']) {
+    if (isset($options['embed-images'])) {
       $embedded_images = self::embedImages($mail, @$options['embed-images']);
     } else {
       $embedded_images = array();
     }
     
     // Get body as the main part
+    if (!isset($options['body'])) {
+      throw new Exception('Body is required');
+    }
     if (!is_array($options['body'])) {
       $options['body'] = array('content' => $options['body']);
     }
     $body = self::getPart($options['body'], $embedded_images);
     
     // Attach parts (body is the first one)
-    if (@$options['parts']) {
+    if (isset($options['parts']) && is_array($options['parts'])) {
       $parts = self::getParts($options['parts'], $embedded_images);
       array_unshift($parts, $body);
       foreach ($parts as $part) {
@@ -200,23 +221,23 @@ class nahoMail
     }
     
     // Attach files
-    if (@$options['attachments']) {
+    if (isset($options['attachments']) && is_array($options['attachments'])) {
       foreach ($options['attachments'] as $attachment) {
         $mail->attach(self::getAttachment($attachment));
       }
     }
     
     // Handle other options
-    if (@$options['bcc']) {
+    if (isset($options['bcc'])) {
       $mail->setBcc($options['bcc']);
     }
-    if (@$options['cc']) {
+    if (isset($options['cc'])) {
       $mail->setCc($options['cc']);
     }
-    if (@$options['reply-to']) {
+    if (isset($options['reply-to'])) {
       $mail->setReplyTo($options['reply-to']);
     }
-    if (@$options['return-path']) {
+    if (isset($options['return-path'])) {
       $mail->setReturnPath($options['return-path']);
     }
     
@@ -249,9 +270,12 @@ class nahoMail
   protected static function getI18NString($string, $format = '%s', $catalogue = 'messages')
   {
     try {
-      $i18n = sfContext::getInstance()->getI18N();
-      $string = $i18n->__($string, array(), $catalogue);
-      $format = $i18n->__($format, array(), $catalogue);
+      $context = sfContext::getInstance();
+      if (is_callable(array($context, 'getI18N'))) {
+        $i18n = $context->getI18N();
+        $string = $i18n->__($string, array(), $catalogue);
+        $format = $i18n->__($format, array(), $catalogue);
+      }
     } catch (sfConfigurationException $e) {
       // I18N is not enabled, just bypass
     }
@@ -275,7 +299,13 @@ class nahoMail
     $cids = array();
     
     foreach ($images as $name => $image) {
-      $path = sfConfig::get('sf_web_dir') . '/' . image_path($image, false);
+      if (file_exists($image)) {
+        // $image is already a valid path
+        $path = $image;
+      } else {
+        // try to compute real image's path
+        $path = sfConfig::get('sf_web_dir') . '/' . image_path($image, false);
+      }
       $embed_image = new Swift_Message_Image(new Swift_File($path));
       $cids[$name] = $mail->attach($embed_image);
     }

@@ -27,10 +27,10 @@
     <email>naholyr@yahoo.fr</email>
     <active>yes</active>
   </lead>
-  <date>2009-02-02</date>
-  <time>20:19:00</time>
+  <date>2009-02-08</date>
+  <time>22:17:00</time>
   <version>
-    <release>1.0.2</release>
+    <release>1.0.3</release>
     <api>1.0.0</api>
   </version>
   <stability>
@@ -174,6 +174,23 @@
   </dependencies>
   <phprelease />
   <changelog>
+    <release>
+      <version>
+        <release>1.0.3</release>
+        <api>1.0.0</api>
+      </version>
+      <stability>
+        <release>stable</release>
+        <api>stable</api>
+      </stability>
+      <date>2009-02-08</date>
+      <license
+        uri="http://www.opensource.org/licenses/mit-license.html">
+        MIT
+      </license>
+      <notes>* naholyr: fixed a few notices
+* naholyr: wrote simple unit tests</notes>
+    </release>
     <release>
       <version>
         <release>1.0.2</release>
