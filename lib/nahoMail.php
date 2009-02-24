@@ -335,7 +335,7 @@ class nahoMail
         $string = get_partial($content['name'], $content['vars']);
       } else { // component
         list($module, $component) = explode('/', $content['name']);
-        get_component($module, $component, $content['vars']);
+        $string = get_component($module, $component, $content['vars']);
       }
     } else {
       $string = $content;
