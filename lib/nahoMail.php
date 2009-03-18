@@ -7,14 +7,14 @@ class nahoMail
    * Send a mail
    *
    * Options :
-   * - from 
+   * - from is an address
    * - connection:
    *     type (*)
    *     params
-   * - reply-to
-   * - return-path
-   * - cc
-   * - bcc
+   * - reply-to is an address or array of addresses
+   * - return-path is an address
+   * - cc is an address or array of addresses
+   * - bcc is an address or array of addresses
    * - subject-template
    * - parts is an array of bodies
    * - attachments
@@ -35,12 +35,16 @@ class nahoMail
    * - filename
    * - mime-type
    * 
+   * an address can be either :
+   * - a string as an email address or in the "name <email>" format
+   * - an array of two strings [name, email] or [email, name]
+   * 
    * embed-images is an associative array of key => image light path.
    * You can use "%%IMG_name-of-image%%" in the body or in any part to reference the corresponding embedded image.
    *  
    * @param string $subject
    * @param string|array $body
-   * @param string|array $to
+   * @param string|array $to is an address or an array of addresses
    * @param array $options
    * 
    * @return int The number of successful recipients 
@@ -120,12 +124,12 @@ class nahoMail
    * - connection:
    *     type (*)
    *     params
-   * - from (*)
-   * - reply-to
-   * - return-path
-   * - to (*) is a string or array of string
-   * - cc
-   * - bcc
+   * - from (*) is an address
+   * - reply-to is an address or an array of addresses
+   * - return-path is an address
+   * - to (*) is an address or an array of addresses
+   * - cc is an address or an array of addresses
+   * - bcc is an address or an array of addresses
    * - subject-template
    * - subject (*)
    * - body (*) can also be a direct string
@@ -146,6 +150,10 @@ class nahoMail
    * - path (*) is the real path on filesystem
    * - filename
    * - mime-type
+   * 
+   * an address can be either :
+   * - a string as an email address or in the "name <email>" format
+   * - an array of two strings [name, email] or [email, name]
    * 
    * embed-images is an associative array of key => image light path.
    * You can use "%%IMG_name-of-image%%" in the body or in any part to reference the corresponding embedded image.
@@ -172,8 +180,8 @@ class nahoMail
     $mailer = new Swift($connection);
     
     // Basic elements
-    $from = $options['from'];
-    $to = $options['to'];
+    $from = self::getSwiftAddress($options['from']);
+    $to = self::getSwiftAddresses($options['to'], true, 'to');
     if (!isset($options['subject'])) {
       throw new Exception('Subject required');
     }
@@ -229,16 +237,16 @@ class nahoMail
     
     // Handle other options
     if (isset($options['bcc'])) {
-      $mail->setBcc($options['bcc']);
+      $mail->setBcc(self::getSwiftAddresses($options['bcc']));
     }
     if (isset($options['cc'])) {
-      $mail->setCc($options['cc']);
+      $mail->setCc(self::getSwiftAddresses($options['cc']));
     }
     if (isset($options['reply-to'])) {
-      $mail->setReplyTo($options['reply-to']);
+      $mail->setReplyTo(self::getSwiftAddresses($options['reply-to']));
     }
     if (isset($options['return-path'])) {
-      $mail->setReturnPath($options['return-path']);
+      $mail->setReturnPath(self::getSwiftAddress($options['return-path']));
     }
     
     try {
@@ -257,6 +265,90 @@ class nahoMail
       throw $e;
       
     }
+  }
+  
+  public static function isEmail($string, $smtp = false, &$matches = null)
+  {
+    if (!is_string($string)) {
+      return false;
+    }
+    
+    $regexp = Swift_Message_Encoder::CHEAP_ADDRESS_RE;
+    if ($smtp) {
+      $regexp = '(.*?)\s*<(' . $regexp . ')>';
+    }
+    $regexp = '/^' . $regexp . '$/';
+    
+    return preg_match($regexp, $string, $matches);
+  }
+  
+  /**
+   * Returns an instance of Swift_Address, based on one of the following formats :
+   * - "email"
+   * - "name <email>"
+   * - array("name", "email")
+   * - array("email", "name")
+   * 
+   * @param string|array $address
+   * @return Swift_Address
+   */
+  protected static function getSwiftAddress($address)
+  {
+    // Format "email"
+    if (self::isEmail($address)) {
+      return new Swift_Address($address);
+    }
+    // Format "name <email>"
+    elseif (self::isEmail($address, true, $m)) {
+      return new Swift_Address($m[2], $m[1]);
+    }
+    // Format array("name", "email")
+    elseif (is_array($address) && count($address) == 2 && self::isEmail($address[1])) {
+      return new Swift_Address($address[1], $address[0]);
+    }
+    // Format array("email", "name")
+    elseif (is_array($address) && count($address) == 2 && self::isEmail($address[0])) {
+      return new Swift_Address($address[0], $address[1]);
+    }
+    // Unexpected format : don't try anything, Swift will detect an eventual error
+    else {
+      return $address;
+    }
+  }
+  
+  /**
+   * Returns an instance of Swift_RecipientList, based on an address or an array of addresses.
+   * 
+   * @see getSwiftAddress()
+   * 
+   * @param $addresses
+   * @return array of Swift_Address | Swift_RecipientList
+   */
+  protected static function getSwiftAddresses($addresses, $recipient_list = false, $type = 'to')
+  {
+    // Detect single address
+    $address = self::getSwiftAddress($addresses);
+    
+    // Single address detected
+    if ($address instanceof Swift_Address) {
+      $result = array($address);
+    }
+    // Other case : an array of addresses
+    else {
+      $result = array();
+      foreach ($addresses as $address) {
+        $result[] = self::getSwiftAddress($address);
+      }
+    }
+    
+    // transform into a recipient list if asked to
+    if ($recipient_list) {
+      $addresses = $result;
+      $result = new Swift_RecipientList();
+      $result->add($addresses, null, $type);
+    }
+    
+    return $result;
   }
   
   /**

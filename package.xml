@@ -27,11 +27,11 @@
     <email>naholyr@yahoo.fr</email>
     <active>yes</active>
   </lead>
-  <date>2009-02-24</date>
-  <time>22:54:00</time>
+  <date>2009-03-18</date>
+  <time>22:00:00</time>
   <version>
-    <release>1.0.4</release>
-    <api>1.0.0</api>
+    <release>1.1.0</release>
+    <api>1.1.0</api>
   </version>
   <stability>
     <release>stable</release>
@@ -174,6 +174,23 @@
   </dependencies>
   <phprelease />
   <changelog>
+    <release>
+      <version>
+        <release>1.1.0</release>
+        <api>1.1.0</api>
+      </version>
+      <stability>
+        <release>stable</release>
+        <api>stable</api>
+      </stability>
+      <date>2009-03-18</date>
+      <license
+        uri="http://www.opensource.org/licenses/mit-license.html">
+        MIT
+      </license>
+      <notes><![CDATA[* naholyr: added support for names in recipients and senders (supports "email", "name <email>" or array("name", "email")
+* naholyr: added support for list of addresses for every recipients (single address or array of addresses, format below)]]></notes>
+    </release>
     <release>
       <version>
         <release>1.0.4</release>

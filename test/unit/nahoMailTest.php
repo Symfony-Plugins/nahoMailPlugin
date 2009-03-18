@@ -18,10 +18,16 @@ $configuration = ProjectConfiguration::getApplicationConfiguration($app, $env, t
 sfContext::createInstance($configuration);
 
 // Start tests
-$t = new lime_test(4, new lime_output_color());
+$t = new lime_test(6, new lime_output_color());
 
 // Most simple call : body as simple string
 $t->ok(nahoMail::send('My Subject', 'My Body', 'his@mail.com', $options), 'Body as simple string');
+
+// Most simple call : body as simple string and recipient with a name as a string
+$t->ok(nahoMail::send('My Subject', 'My Body', 'him <his@mail.com>', $options), 'Body as simple string and recipient with a name as a string');
+
+// Most simple call : body as simple string and recipient with a name as an array
+$t->ok(nahoMail::send('My Subject', 'My Body', array('him', 'his@mail.com'), $options), 'Body as simple string and recipient with a name as an array');
 
 // A bit more complex call : body as an array
 $t->ok(nahoMail::send('My Subject', array('content' => 'My Body'), 'his@mail.com', $options), 'Body as array content => body');
