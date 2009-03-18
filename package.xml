@@ -30,8 +30,8 @@
   <date>2009-03-18</date>
   <time>22:00:00</time>
   <version>
-    <release>1.1.0</release>
-    <api>1.1.0</api>
+    <release>1.1.1</release>
+    <api>1.1.1</api>
   </version>
   <stability>
     <release>stable</release>
@@ -176,8 +176,8 @@
   <changelog>
     <release>
       <version>
-        <release>1.1.0</release>
-        <api>1.1.0</api>
+        <release>1.1.1</release>
+        <api>1.1.1</api>
       </version>
       <stability>
         <release>stable</release>
@@ -188,7 +188,7 @@
         uri="http://www.opensource.org/licenses/mit-license.html">
         MIT
       </license>
-      <notes><![CDATA[* naholyr: added support for names in recipients and senders (supports "email", "name <email>" or array("name", "email")
+      <notes><![CDATA[* naholyr: added support for names in recipients and senders (supports "email", "name &lt;email&gt;" or array("name", "email")
 * naholyr: added support for list of addresses for every recipients (single address or array of addresses, format below)]]></notes>
     </release>
     <release>

@@ -183,6 +183,21 @@ You can define "cc" and "bcc" in the options array.
     cc:                    recipient or [recipients]
     bcc:                   recipient or [recipients]
 
+#### Address format
+
+Any address (sender or recipient) can be of one of the following formats :
+
+* `"email@domain.dlt"` for a single address
+* `"name <email@domain.dlt>"` for a name + address
+* `array("name", "email@domain.dlt")` or `array("email@domain.dlt", "name")` for a name + address
+
+For any recipient address, you can use an address or an array of addresses. The lib will be smart enough
+to make the difference between the following possibly-confusing cases : 
+
+    array("my name", "my@email.com")            // single address
+    array(array("my name", "my@email.com"))     // list of only one single address
+    array("my@email.com", "my_other@email.com") // list of two addresses
+
 TODO
 ----
  
@@ -191,6 +206,30 @@ TODO
 Changelog
 ---------
 
+### 2009-03-18 | Trunk
+
+* naholyr: added support for names in recipients and senders (supports "email", "name &lt;email&gt;" or array("name", "email")
+* naholyr: added support for list of addresses for every recipients (single address or array of addresses, format below)
+
+### 2009-02-24 | Trunk
+
+* naholyr: fixed bug preventing usage of components (thanks to Nicolas for report)
+
+### 2009-02-08 | Trunk
+
+* naholyr: fixed a few notices
+* naholyr: wrote simple unit tests</notes>
+
 ### 2009-01-31 | Trunk
 
-* naholyr: Initial release
+* naholyr: fixed an error when sending e-mail with just a string body as second parameter
+* naholyr: fixed the way helpers are loaded for versions lower than 1.2
+* naholyr: proper disconnection when exception catched when sending mail
+
+### 2009-01-31 | Trunk
+
+* naholyr: fixed package
+
+### 2009-01-31 | Trunk
+
+* naholyr: first release
