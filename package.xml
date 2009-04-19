@@ -19,12 +19,12 @@
     <email>naholyr@yahoo.fr</email>
     <active>yes</active>
   </lead>
-  <dev>
+  <developer>
     <name>Matteo Montanari</name>
     <user>matteo</user>
     <email>matteo@italinux.com</email>
     <active>yes</active>
-  </dev>
+  </developer>
   <date>2009-04-19</date>
   <time>01:50:11</time>
   <version>
@@ -214,7 +214,7 @@
       <package>
         <name>symfony</name>
         <channel>pear.symfony-project.com</channel>
-        <min>1.2.0</min>
+        <min>1.0.0</min>
         <max>1.3.0</max>
         <exclude>1.3.0</exclude>
       </package>
@@ -233,7 +233,7 @@
       </stability>
       <date>2009-04-19</date>
       <license uri="http://www.opensource.org/licenses/mit-license.html">MIT</license>
-      <notes>* Matteo Montanari: fixed bug about not working additional recipients (Cc & Bcc)</notes>
+      <notes>* Matteo Montanari: fixed bug about not working additional recipients (Cc &amp; Bcc)</notes>
   </release>
   <release>
    <version>
