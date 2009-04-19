@@ -178,10 +178,13 @@ class nahoMail
     }
     $connection = self::getConnection($options['connection']['type'], $options['connection']['params']);
     $mailer = new Swift($connection);
-    
+
+    $to = new Swift_RecipientList();
+    $to->addTo(self::getSwiftAddresses($options['to']));
+
     // Basic elements
     $from = self::getSwiftAddress($options['from']);
-    $to = self::getSwiftAddresses($options['to'], true, 'to');
+
     if (!isset($options['subject'])) {
       throw new Exception('Subject required');
     }
@@ -195,7 +198,6 @@ class nahoMail
     
     // Message to be sent
     $mail = new Swift_Message($subject);
-    
     // Embedded images
     if (isset($options['embed-images'])) {
       $embedded_images = self::embedImages($mail, @$options['embed-images']);
@@ -237,10 +239,10 @@ class nahoMail
     
     // Handle other options
     if (isset($options['bcc'])) {
-      $mail->setBcc(self::getSwiftAddresses($options['bcc']));
+      $to->addBcc(self::getSwiftAddresses($options['bcc']));
     }
     if (isset($options['cc'])) {
-      $mail->setCc(self::getSwiftAddresses($options['cc']));
+      $to->addCc(self::getSwiftAddresses($options['cc']));
     }
     if (isset($options['reply-to'])) {
       $mail->setReplyTo(self::getSwiftAddresses($options['reply-to']));
