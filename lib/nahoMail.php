@@ -435,7 +435,7 @@ class nahoMail
       $string = $content;
     }
     
-    self::replaceEmbeddedImages($string, $embedded_images);
+    $string = self::replaceEmbeddedImages($string, $embedded_images);
     
     return $string;
   }
