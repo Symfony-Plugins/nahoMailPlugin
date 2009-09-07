@@ -214,6 +214,18 @@ class nahoMail
     }
     $body = self::getPart($options['body'], $embedded_images);
     
+    // Attach files
+    if (isset($options['attachments']) && is_array($options['attachments'])) {
+      // Known bug : When we have attachments, we must have body declared as a part, or the 
+      // mail will be received with no body. We fix this here :
+      if (!isset($options['parts'])) {
+        $options['parts'] = array();
+      }
+      foreach ($options['attachments'] as $attachment) {
+        $mail->attach(self::getAttachment($attachment));
+      }
+    }
+    
     // Attach parts (body is the first one)
     if (isset($options['parts']) && is_array($options['parts'])) {
       $parts = self::getParts($options['parts'], $embedded_images);
@@ -228,13 +240,6 @@ class nahoMail
       $mail->setCharset($body->getCharset()); 
       $mail->setEncoding($body->getEncoding());
       $mail->setContentType($body->getContentType());
-    }
-    
-    // Attach files
-    if (isset($options['attachments']) && is_array($options['attachments'])) {
-      foreach ($options['attachments'] as $attachment) {
-        $mail->attach(self::getAttachment($attachment));
-      }
     }
     
     // Handle other options
