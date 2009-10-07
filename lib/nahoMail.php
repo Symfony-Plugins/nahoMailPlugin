@@ -581,6 +581,15 @@ class nahoMail
    *       etc...
    *     requires_ehlo
    *  
+   * - debug: 
+   *     log_class: class of the logger (is not set, we use the logger returned by sfContext::getLogger())
+   *     log_level: level of logging
+   *  
+   * - any_other_value:
+   *     any_options...
+   *   This will search for a class "AnyOtherValue" or "Swift_Connection_AnyOtherValue" and use it as a connection class.
+   *   You must have a setter for each option.
+   *  
    * (*) Mandatory !
    *
    * @param string $type
@@ -589,7 +598,7 @@ class nahoMail
    */
   protected static function getConnection($type, $params = array())
   {
-    switch ($type) {
+    switch (strtolower($type)) {
       
       case 'native':
         $connection = new Swift_Connection_NativeMail();
@@ -643,12 +652,30 @@ class nahoMail
         break;
         
       case 'rotator':
-        $connection = new Swift_Connection_Multi();
+        $connection = new Swift_Connection_Rotator();
         foreach ($params['connections'] as $id => $conn_info) {
           $connection->addConnection(self::getConnection($conn_info['type'], $conn_info['params']));
         }
         if (@$params['requires_ehlo']) {
           $connection->setRequiresEHLO(true);
+        }
+        break;
+        
+      default:
+        $class_bulk = sfInflector::classify($type);
+        if (!class_exists($class = $class_bulk))
+        {
+          $class_swift = 'Swift_Connection_'.sfInflector::classify($type);
+          if (!class_exists($class = $class_swift))
+          {
+            throw new Exception('Connection type '.$type.' unknown, and possible classes "'.$class_bulk.'" and "'.$class_swift.'" cannot be found.');
+          }
+        }
+        $connection = new $class();
+        foreach ($params as $param => $value)
+        {
+          $setParam = sfInflector::camelize('set_'.$param);
+          $connection->$setParam($value);
         }
         break;
     }
