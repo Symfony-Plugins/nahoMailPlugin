@@ -690,7 +690,16 @@ class nahoMail
    */
   protected static function loadHelper($helper)
   {
-    sfLoader::loadHelpers(array($helper));
+    if (class_exists('sfProjectConfiguration', true))
+    {
+      $configuration = sfProjectConfiguration::getActive();
+      
+      return $configuration->loadHelpers(array($helper));
+    }
+    else
+    {
+      return sfLoader::loadHelpers(array($helper));
+    }
   }
   
 }
