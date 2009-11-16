@@ -164,6 +164,8 @@ class nahoMail
    */
   protected static function _send(array $options)
   {
+    self::applyCLIFixes();
+    
     $options = array_merge(sfConfig::get('app_mailer_defaults', array()), $options);
     
     // Mailer
@@ -214,13 +216,15 @@ class nahoMail
     }
     $body = self::getPart($options['body'], $embedded_images);
     
+    // Known bug in Swift : When we have attachments, we must have body declared as a part, or the 
+    // mail will be received with no body. We fix this here :
+    $has_attachments = (isset($options['attachments']) && is_array($options['attachments'])) || (count($embedded_images) > 0);
+    if ($has_attachments && !isset($options['parts'])) {
+      $options['parts'] = array();
+    }
+    
     // Attach files
     if (isset($options['attachments']) && is_array($options['attachments'])) {
-      // Known bug : When we have attachments, we must have body declared as a part, or the 
-      // mail will be received with no body. We fix this here :
-      if (!isset($options['parts'])) {
-        $options['parts'] = array();
-      }
       foreach ($options['attachments'] as $attachment) {
         $mail->attach(self::getAttachment($attachment));
       }
@@ -403,7 +407,7 @@ class nahoMail
         $path = $image;
       } else {
         // try to compute real image's path
-        $path = sfConfig::get('sf_web_dir') . '/' . image_path($image, false);
+        $path = sfConfig::get('sf_web_dir') . '/' . ltrim(image_path($image, false), '/');
       }
       $embed_image = new Swift_Message_Image(new Swift_File($path));
       $cids[$name] = $mail->attach($embed_image);
@@ -699,6 +703,27 @@ class nahoMail
     else
     {
       return sfLoader::loadHelpers(array($helper));
+    }
+  }
+  
+  /**
+   * Apply some fixes in the current context, only for CLI execution
+   */
+  protected static function applyCLIFixes()
+  {
+    try 
+    {
+      $context = sfContext::getInstance();
+      if ($context->getController()->inCLI())
+      {
+        // Fix "compute_public_path" which would contain $0 when called in CLI
+        $context->getRequest()->setRelativeUrlRoot('');
+      }
+    }
+    catch (Exception $e)
+    {
+      // No context loadable = no fix to apply
+      // If you need a context, add "application" option in your task
     }
   }
   
