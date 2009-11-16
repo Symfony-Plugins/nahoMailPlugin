@@ -314,11 +314,11 @@ class nahoMail
       return new Swift_Address($m[2], $m[1]);
     }
     // Format array("name", "email")
-    elseif (is_array($address) && count($address) == 2 && self::isEmail($address[1])) {
+    elseif (is_array($address) && count($address) == 2 && self::isEmail($address[1])&& !self::isEmail($address[0]) && self::isEmail($address[1])) {
       return new Swift_Address($address[1], $address[0]);
     }
     // Format array("email", "name")
-    elseif (is_array($address) && count($address) == 2 && self::isEmail($address[0])) {
+    elseif (is_array($address) && count($address) == 2 && self::isEmail($address[0]) && !self::isEmail($address[1])) {
       return new Swift_Address($address[0], $address[1]);
     }
     // Unexpected format : don't try anything, Swift will detect an eventual error
